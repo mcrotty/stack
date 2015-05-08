@@ -154,7 +154,7 @@ void Server::startWorker(int port_id) {
 void Server::serveEchoFlow(int port_id)
 {
   bool keep_serving = true;
-  char buffer[max_sdu_size_in_bytes];
+  uint8_t buffer[max_sdu_size_in_bytes];
   rina::cdap::CDAPProviderInterface *cdap_prov = 0;
   ConnectionCallback* callback = new ConnectionCallback(&keep_serving, &cdap_prov);
   std::cout<<"cdap_prov created"<<std::endl;

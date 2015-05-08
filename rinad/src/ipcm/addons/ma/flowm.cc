@@ -270,7 +270,7 @@ void ActiveWorker::allocateFlow()
 void* ActiveWorker::run(void* param)
 {
 
-	char buffer[max_sdu_size_in_bytes];
+	uint8_t buffer[max_sdu_size_in_bytes];
 	rina::cdap_rib::src_info_t src;
 	rina::cdap_rib::dest_info_t dest;
 	int bytes_read;

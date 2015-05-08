@@ -239,7 +239,7 @@ void Manager::operate(rina::FlowInformation flow)
 
 void Manager::cacep(rina::FlowInformation flow)
 {
-        char buffer[max_sdu_size_in_bytes];
+        uint8_t buffer[max_sdu_size_in_bytes];
         int bytes_read = ipcManager->readSDU(flow.portId, buffer, max_sdu_size_in_bytes);
         cdap_rib::SerializedObject message;
         message.message_ = buffer;
@@ -249,7 +249,7 @@ void Manager::cacep(rina::FlowInformation flow)
 
 void Manager::createIPCP(rina::FlowInformation flow)
 {
-        char buffer[max_sdu_size_in_bytes];
+        uint8_t buffer[max_sdu_size_in_bytes];
 
         mad_manager::structures::ipcp_config_t ipc_config;
         ipc_config.process_instance = "1";
@@ -287,7 +287,7 @@ void Manager::createIPCP(rina::FlowInformation flow)
 
 void Manager::queryRIB(rina::FlowInformation flow)
 {
-        char buffer[max_sdu_size_in_bytes];
+        uint8_t buffer[max_sdu_size_in_bytes];
 
 	cdap_rib::obj_info_t obj;
 	obj.name_ =

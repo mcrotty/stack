@@ -129,7 +129,7 @@ void Client::createFlow()
 
 void Client::cacep()
 {
-        char buffer[max_buffer_size];
+        uint8_t buffer[max_buffer_size];
         cdap::CDAPProviderFactory::init(2000);
         cdap_prov_ = cdap::CDAPProviderFactory::create(false, this);
         cdap_rib::vers_info_t ver;
@@ -188,7 +188,7 @@ void Client::sendReadRMessage()
 {
         while (count_ < echo_times) {
                 IPCEvent* event = ipcEventProducer->eventPoll();
-                char buffer[max_buffer_size];
+                uint8_t buffer[max_buffer_size];
                 if (event) {
                         switch (event->eventType) {
                                 case FLOW_DEALLOCATED_EVENT:
@@ -230,7 +230,7 @@ void Client::sendReadRMessage()
 
 void Client::release()
 {
-        char buffer[max_buffer_size];
+        uint8_t buffer[max_buffer_size];
         std::cout << "release request CDAP message sent" << std::endl;
         cdap_prov_->close_connection(con_.port_);
         int bytes_read = ipcManager->readSDU(flow_.portId, buffer, max_buffer_size);

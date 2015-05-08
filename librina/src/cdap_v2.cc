@@ -2571,7 +2571,7 @@ const cdap_m_t* GPBSerializer::deserializeMessage(
         if (gpfCDAPMessage.has_objvalue()) {
                 cdap::impl::googleprotobuf::objVal_t obj_val_t = gpfCDAPMessage
                                 .objvalue();
-                char *byte_val = new char[obj_val_t.byteval().size()];
+                uint8_t *byte_val = new uint8_t[obj_val_t.byteval().size()];
                 memcpy(byte_val, obj_val_t.byteval().data(),
                        obj_val_t.byteval().size());
                 cdapMessage->obj_value_.message_ = byte_val;
@@ -2689,7 +2689,7 @@ const cdap_rib::SerializedObject* GPBSerializer::serializeMessage(
         gpfCDAPMessage.set_version(cdapMessage.version_);
 
         int size = gpfCDAPMessage.ByteSize();
-        char *buffer = new char[size];
+        uint8_t *buffer = new uint8_t[size];
         gpfCDAPMessage.SerializeToArray(buffer, size);
         cdap_rib::SerializedObject *serialized_message =
                         new cdap_rib::SerializedObject;
@@ -3069,7 +3069,7 @@ void CDAPProvider::process_message(cdap_rib::SerializedObject &message,
         obj.inst_ = m_rcv->obj_inst_;
         obj.name_ = m_rcv->obj_name_;
         obj.value_.size_ = m_rcv->obj_value_.size_;
-        obj.value_.message_ = new char[obj.value_.size_];
+        obj.value_.message_ = new uint8_t[obj.value_.size_];
         memcpy(obj.value_.message_, m_rcv->obj_value_.message_,
                m_rcv->obj_value_.size_);
 

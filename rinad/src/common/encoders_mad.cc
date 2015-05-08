@@ -40,7 +40,7 @@ void StringEncoder::encode(const std::string& obj,
 
         //Allocate memory
         serobj.size_ = s.ByteSize();
-        serobj.message_ = new char[serobj.size_];
+        serobj.message_ = new uint8_t[serobj.size_];
 
         if (!serobj.message_)
                 throw rina::Exception("out of memory");  //TODO improve this
@@ -72,7 +72,7 @@ void IPCPConfigEncoder::encode(const structures::ipcp_config_t& obj,
 
         //Allocate memory
         ser_obj.size_ = gpf_obj.ByteSize();
-        ser_obj.message_ = new char[ser_obj.size_];
+        ser_obj.message_ = new uint8_t[ser_obj.size_];
 
         if (!ser_obj.message_)
                 throw rina::Exception("out of memory");  //TODO improve this
@@ -106,7 +106,7 @@ void IPCPEncoder::encode(const structures::ipcp_t& obj,
 
         //Allocate memory
         serobj.size_ = m.ByteSize();
-        serobj.message_ = new char[serobj.size_];
+        serobj.message_ = new uint8_t[serobj.size_];
 
         if (!serobj.message_)
                 throw rina::Exception("out of memory");  //TODO improve this

@@ -23,13 +23,14 @@
 #define CDAP_RIB_STRUCTURES_H_
 
 #include <string>
+#include <stdint.h>
 
 namespace rina {
 namespace cdap_rib {
 
 typedef struct SerializedObject {
 	int size_;
-	char* message_;
+	uint8_t* message_;
 } ser_obj_t;
 
 typedef struct cdap_params {
