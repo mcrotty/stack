@@ -21,7 +21,7 @@ AC_CANONICAL_BUILD
 AC_CANONICAL_HOST
 AC_CANONICAL_TARGET
 
-AM_INIT_AUTOMAKE([1.11.1 tar-pax foreign -Wall])
+AM_INIT_AUTOMAKE([1.11.1 tar-pax foreign -Wall subdir-objects])
 #AM_INIT_AUTOMAKE([1.11.1 tar-pax foreign std-options -Wall])
 
 AC_PROG_SED
@@ -29,10 +29,22 @@ AC_PROG_GREP
 AC_PROG_MKDIR_P
 AC_PROG_LN_S
 
-AC_PATH_PROG([FMT],  [fmt],  [/bin/false])
-AC_PATH_PROG([SORT], [sort], [/bin/false])
-AC_PATH_PROG([UNIQ], [uniq], [/bin/false])
-AC_PATH_PROG([GIT],  [git],  [/bin/false])
+AC_PATH_PROG([FMT],  [fmt],  [no])
+AS_IF([test "x$FMT" = "xno"],[
+	AC_MSG_ERROR([Your system lacks of fmt support])
+])
+AC_PATH_PROG([SORT], [sort], [no])
+AS_IF([test "x$SORT" = "xno"],[
+	AC_MSG_ERROR([Your system lacks of sort support])
+])
+AC_PATH_PROG([UNIQ], [uniq], [no])
+AS_IF([test "x$UNIQ" = "xno"],[
+	AC_MSG_ERROR([Your system lacks of uniq support])
+])
+AC_PATH_PROG([GIT],  [git],  [no])
+AS_IF([test "x$GIT" = "xno"],[
+	AC_MSG_ERROR([Your system lacks of git support])
+])
 
 AC_PROG_CPP
 AC_PROG_CC
@@ -50,25 +62,22 @@ CPPFLAGS_EXTRA=""
 CXXFLAGS_EXTRA=""
 
 AX_CHECK_COMPILE_FLAG([ -Wall ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Wall"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Wall"
 ])
 AX_CHECK_COMPILE_FLAG([ -Wformat ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Wformat"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Wformat"
 ])
 AX_CHECK_COMPILE_FLAG([ -Wnon-virtual-dtor ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Wnon-virtual-dtor"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Wnon-virtual-dtor"
 ])
 AX_CHECK_COMPILE_FLAG([ -Woverloaded-virtual ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Woverloaded-virtual"
-])
-AX_CHECK_COMPILE_FLAG([ -Wextra ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Wextra"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Woverloaded-virtual"
 ])
 AX_CHECK_COMPILE_FLAG([ -Werror ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Werror"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Werror"
 ])
 AX_CHECK_COMPILE_FLAG([ -Wfatal-errors ], [
-    CPPFLAGS_EXTRA="$CPPFLAGS_EXTRA -Wfatal-errors"
+    CXXFLAGS_EXTRA="$CXXFLAGS_EXTRA -Wfatal-errors"
 ])
 
 want_debug=no
@@ -244,7 +253,10 @@ AX_HAVE_SYSCALL([management_sdu_write],[],[
 CFLAGS="$oldcflags"
 AC_LANG_POP([C])
 
-AC_PATH_PROG([PROTOC], [protoc], [/bin/false])
+AC_PATH_PROG([PROTOC], [protoc], [no])
+AS_IF([test "x$PROTOC" = "xno"],[
+	AC_MSG_ERROR([Your system lacks of protoc support])
+])
 
 LIBPROTOBUF_MIN_VERSION=2.5.0
 AC_SUBST(LIBPROTOBUF_MIN_VERSION, $LIBPROTOBUF_MIN_VERSION)
