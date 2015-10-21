@@ -111,7 +111,7 @@ void IPCManager_::init(const std::string& loglevel, std::string& config_file)
 
 		// Load the plugins catalog
 		catalog.import();
-		catalog.print();
+		//catalog.print();
 
 		// Initialize the I/O thread
 		io_thread = new rina::Thread(io_loop_trampoline,
@@ -582,8 +582,7 @@ IPCManager_::assign_to_dif(Addon* callee, Promise* promise,
 ipcm_res_t
 IPCManager_::register_at_dif(Addon* callee, Promise* promise,
 			const unsigned short ipcp_id,
-			const rina::ApplicationProcessNamingInformation& dif_name,
-			bool blocking)
+			const rina::ApplicationProcessNamingInformation& dif_name)
 {
 	// Select a slave (N-1) IPC process.
 	IPCMIPCProcess *ipcp, *slave_ipcp;
@@ -633,7 +632,7 @@ IPCManager_::register_at_dif(Addon* callee, Promise* promise,
 
 		//Register
 		slave_ipcp->registerApplication(
-				ipcp->get_name(), ipcp->get_id(), trans->tid, blocking);
+				ipcp->get_name(), ipcp->get_id(), trans->tid);
 
 		ss << "Requested DIF registration of IPC process " <<
 			ipcp->get_name().toString() << " at DIF " <<
@@ -872,7 +871,7 @@ IPCManager_::apply_configuration()
 				for (list<rina::ApplicationProcessNamingInformation>::const_iterator
 						nit = cit->difsToRegisterAt.begin();
 						nit != cit->difsToRegisterAt.end(); nit++) {
-					if (register_at_dif(NULL, &promise, c_promise.ipcp_id, *nit, true) == IPCM_FAILURE ||
+					if (register_at_dif(NULL, &promise, c_promise.ipcp_id, *nit) == IPCM_FAILURE ||
 							promise.wait() != IPCM_SUCCESS) {
 						ss << "Problems registering IPCP " << c_promise.ipcp_id
 								<< " to DIF " << nit->processName << endl;
@@ -1114,6 +1113,18 @@ IPCManager_::set_policy_set_param(Addon* callee, Promise* promise,
 	return IPCM_PENDING;
 }
 
+static string
+extract_subcomponent_name(const string& cpath)
+{
+	size_t l = cpath.rfind(".");
+
+	if (l == string::npos) {
+		return cpath;
+	}
+
+	return cpath.substr(l+1);
+}
+
 ipcm_res_t
 IPCManager_::select_policy_set(Addon* callee, Promise* promise,
 		const unsigned short ipcp_id,
@@ -1122,9 +1133,21 @@ IPCManager_::select_policy_set(Addon* callee, Promise* promise,
 {
 	ostringstream ss;
 	IPCMIPCProcess *ipcp;
-	IPCPTransState* trans;
+	IPCPSelectPsTransState* trans;
 
 	try {
+		/* Load the policy set in the catalog. */
+		rina::PsInfo ps_info;
+		int ret;
+
+		ps_info.name = ps_name;
+		ps_info.app_entity = extract_subcomponent_name(component_path);
+		ret = catalog.load_policy_set(callee, ipcp_id, ps_info);
+		if (ret) {
+			throw rina::Exception();
+		}
+
+		/* Select the policy set. */
 		ipcp = lookup_ipcp_by_id(ipcp_id);
 
 		if(!ipcp){
@@ -1136,7 +1159,8 @@ IPCManager_::select_policy_set(Addon* callee, Promise* promise,
 		//Auto release the read lock
 		rina::ReadScopedLock readlock(ipcp->rwlock, false);
 
-		trans = new IPCPTransState(callee, promise, ipcp->get_id());
+		trans = new IPCPSelectPsTransState(callee, promise, ipcp->get_id(),
+						   ps_info, ipcp->get_id());
 		if(!trans){
 			ss << "Unable to allocate memory for the transaction object. Out of memory! ";
 			FLUSH_LOG(ERR, ss);
@@ -1228,12 +1252,13 @@ IPCManager_::plugin_load(Addon* callee, Promise* promise,
 {
 	ostringstream ss;
 	IPCMIPCProcess *ipcp;
-	IPCPTransState* trans;
+	IPCPpluginTransState* trans;
 
 	try {
 		//First try to see if its a kernel module
 		if (plugin_load_kernel(plugin_name, load) == IPCM_SUCCESS) {
 			promise->ret = IPCM_SUCCESS;
+			catalog.plugin_loaded(plugin_name, ipcp_id, load);
 
 			return IPCM_SUCCESS;
 		}
@@ -1249,7 +1274,8 @@ IPCManager_::plugin_load(Addon* callee, Promise* promise,
 		//Auto release the read lock
 		rina::ReadScopedLock readlock(ipcp->rwlock, false);
 
-		trans = new IPCPTransState(callee, promise, ipcp->get_id());
+		trans = new IPCPpluginTransState(callee, promise, ipcp->get_id(),
+						 plugin_name, load);
 		if(!trans){
 			ss << "Unable to allocate memory for the transaction object. Out of memory! ";
 			FLUSH_LOG(ERR, ss);
@@ -1295,6 +1321,14 @@ IPCManager_::plugin_get_info(const std::string& plugin_name,
 	int ret = rina::plugin_get_info(plugin_name, IPCPPLUGINSDIR, result);
 
 	return ret ? IPCM_FAILURE : IPCM_SUCCESS;
+}
+
+ipcm_res_t
+IPCManager_::update_catalog(Addon* callee)
+{
+	catalog.import();
+
+	return IPCM_SUCCESS;
 }
 
 ipcm_res_t
