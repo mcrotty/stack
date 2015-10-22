@@ -430,6 +430,10 @@ DOWNCAST_IPC_EVENT_CONSUMER(eventTimedWait);
 %rename(equals) rina::Neighbor::operator==(const Neighbor &other) const;
 %rename(differs) rina::Neighbor::operator!=(const Neighbor &other) const;
 
+/* Fix issue 772 */
+%rename(differs) rina::PsInfo::operator!=(const PsInfo& o) const;
+%rename(equals) rina::PsInfo::operator==(const PsInfo& o) const;
+
 %include "librina/exceptions.h"
 %include "librina/patterns.h"
 %include "librina/concurrency.h"
