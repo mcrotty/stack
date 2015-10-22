@@ -237,10 +237,8 @@
 
 %typemap(out) rina::IPCEvent *rina::IPCEventProducer::OPERATION {
     if ($1 == NULL) {
-      std::cout << "IPCEvent:NULL"  << std::endl;
       return NULL;
     }
-    std::cout << "IPCEvent:" << $1->eventType << std::endl;
     if ($1->eventType == rina::APPLICATION_REGISTRATION_REQUEST_EVENT) {
     	rina::ApplicationRegistrationRequestEvent *appRegReqEvent = dynamic_cast<rina::ApplicationRegistrationRequestEvent *>($1);
         jclass clazz = jenv->FindClass("eu/irati/librina/ApplicationRegistrationRequestEvent");
@@ -426,7 +424,6 @@ DOWNCAST_IPC_EVENT_CONSUMER(eventTimedWait);
 %rename(differs) rina::FlowInformation::operator!=(const FlowInformation &other) const;
 %rename(equals) rina::rib::RIBObjectData::operator==(const RIBObjectData &other) const;
 %rename(differs) rina::rib::RIBObjectData::operator!=(const RIBObjectData &other) const;
-
 %rename(equals) rina::Neighbor::operator==(const Neighbor &other) const;
 %rename(differs) rina::Neighbor::operator!=(const Neighbor &other) const;
 
